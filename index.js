@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
 
 let persons = [
   {
@@ -19,6 +20,8 @@ let persons = [
   }
 ]
 
+app.use(bodyParser.json()
+)
 app.get('/api/persons', (request, response) => {
   response.json(persons)
 })
@@ -28,7 +31,7 @@ app.get('/info', (request, response) => {
     <div>Phonebook has info for ${persons.length} people</div>
     <div>${new Date().toString()}</div>
   `)
-} )
+})
 
 app.get('/api/persons/:id', (request, response) => {
   const requestedId = Number(request.params.id)
@@ -43,6 +46,19 @@ app.delete('/api/persons/:id', (request, response) => {
   const requestedId = Number(request.params.id)
   persons = persons.filter(person => person.id !== requestedId)
   response.status(204).end()
+})
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+  if(!body) {
+    return response.status(400).json(
+      {error: "missing content"}
+    )
+  }
+  const id = Math.floor(Math.random()*1000000)
+  const newPerson = {...body, id}
+  persons = persons.concat(newPerson)
+  response.status(201).json(newPerson)
 })
 
 app.listen(3001)
