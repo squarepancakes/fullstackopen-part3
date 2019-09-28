@@ -10,7 +10,7 @@
     "watch": "nodemon index.js",
     "build:ui": "rm -fr build && cd ../phonebook && npm run build --prod && cp -r build ../backend",
     "deploy": "git push heroku master",
-    "deploy:full": "npm run build:ui && git add . && git commit -m updateUi && git push && npm run deploy"
+    "deploy:full": "npm run build:ui && git add . && git commit -m updateUi && npm run deploy"
   },
   "author": "Hasan Hacioglu",
   "license": "MIT",
