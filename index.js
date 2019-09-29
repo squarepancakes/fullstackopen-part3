@@ -21,7 +21,8 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.get('/api/persons', (request, response) => {
   Person.find({})
     .then(persons => {
-      response.json(persons.map(person => person.toJSON()))
+      const transformed = persons.map(person => person.toJSON())
+      response.json(transformed)
     })
 
 })
@@ -33,19 +34,21 @@ app.get('/info', (request, response) => {
   `)
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const requestedId = Number(request.params.id)
-  const person = persons.find(person => person.id === requestedId)
-  if(!person) {
-    return response.status(404).end()
-  }
-  response.json(person)
-})
+// app.get('/api/persons/:id', (request, response) => {
+//   const requestedId = Number(request.params.id)
+//   const person = persons.find(person => person.id === requestedId)
+//   if(!person) {
+//     return response.status(404).end()
+//   }
+//   response.json(person)
+// })
 
 app.delete('/api/persons/:id', (request, response) => {
-  const requestedId = Number(request.params.id)
-  persons = persons.filter(person => person.id !== requestedId)
-  response.status(204).end()
+  const id = request.params.id
+  console.log()
+  Person.findByIdAndRemove(id)
+    .then(() => response.status(204).end())
+    .catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response) => {
