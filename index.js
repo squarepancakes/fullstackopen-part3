@@ -1,35 +1,29 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "044-3245-34",
-    id: 1
-  },
-  {
-    name: "II Arto Hellas",
-    number: "044-3245-34",
-    id: 2
-  },
-  {
-    name: "III Arto Hellas",
-    number: "044-3245-34",
-    id: 3
-  }
-]
+const Person = require('./models/person')
 
 app.use(cors())
+
 app.use(bodyParser.json())
+
 app.use(express.static('build'))
-morgan.token('body', (request, response) => {
+
+morgan.token('body', (request) => {
   return JSON.stringify(request.body)
 })
+
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({})
+    .then(persons => {
+      response.json(persons.map(person => person.toJSON()))
+    })
+
 })
 
 app.get('/info', (request, response) => {
@@ -74,7 +68,8 @@ app.post('/api/persons', (request, response) => {
 })
 
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
+
 app.listen(PORT)
 
 console.log(`App is running on port ${PORT}`)
