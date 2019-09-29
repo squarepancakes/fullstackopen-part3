@@ -28,20 +28,28 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  response.send(`
-    <div>Phonebook has info for ${persons.length} people</div>
-    <div>${new Date().toString()}</div>
-  `)
+  Person
+    .find({})
+    .then(persons => {
+      response.send(`
+        <div>Phonebook has info for ${persons.length} people</div>
+        <div>${new Date().toString()}</div>
+      `)
+    })
 })
 
-// app.get('/api/persons/:id', (request, response) => {
-//   const requestedId = Number(request.params.id)
-//   const person = persons.find(person => person.id === requestedId)
-//   if(!person) {
-//     return response.status(404).end()
-//   }
-//   response.json(person)
-// })
+app.get('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
+  Person
+    .findById(id)
+    .then((person) => {
+      if(!person) {
+        return response.status(404).end()
+      }
+      response.json(person.toJSON())
+    })
+    .catch(error => next(error))
+})
 
 app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
