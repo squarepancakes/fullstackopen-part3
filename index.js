@@ -43,11 +43,12 @@ app.get('/info', (request, response) => {
 //   response.json(person)
 // })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  console.log()
   Person.findByIdAndRemove(id)
-    .then(() => response.status(204).end())
+    .then((result) => {
+      response.status(204).end()
+    })
     .catch(error => next(error))
 })
 
@@ -63,6 +64,17 @@ app.post('/api/persons', (request, response) => {
   person.save()
     .then(result => response.status(201).json(result.toJSON()))
 })
+
+const errorHandler = (error, request, response, next) => { 
+  console.log(error.message)
+  if(error.name === 'CastError' && error.kind === 'ObjectId') {
+    return response.status(400).send({ error: 'malformed id'})
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 
 const PORT = process.env.PORT
