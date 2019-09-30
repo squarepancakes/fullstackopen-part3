@@ -70,7 +70,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
   if(!body.name && !body.number) {
     return response.status(400).json({error:"missing content"})
@@ -80,13 +80,20 @@ app.post('/api/persons', (request, response) => {
     number: body.number
   })
   person.save()
-    .then(result => response.status(201).json(result.toJSON()))
+    .then(result => result.toJSON())
+    .then(result => response.status(201).json(result))
+    .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => { 
   console.log(error.message)
   if(error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformed id'})
+  }
+
+  if(error.name === 'ValidationError') {
+    console.log(error)
+    return response.status(400).send({ 'error': error.message})
   }
 
   next(error)
