@@ -54,18 +54,18 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   Person.findByIdAndRemove(id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
 })
 
-app.put('/api/persons/:id', (request, response, next) => { 
+app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   const body = request.body
-  const updatedPerson = {name: body.name, number: body.number} 
+  const updatedPerson = { name: body.name, number: body.number }
   Person
-    .findByIdAndUpdate(request.params.id, updatedPerson, { new: true })
+    .findByIdAndUpdate(id, updatedPerson, { new: true })
     .then(person => response.json(person.toJSON()))
     .catch(error => next(error))
 })
@@ -73,7 +73,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
   if(!body.name && !body.number) {
-    return response.status(400).json({error:"missing content"})
+    return response.status(400).json({ error: 'missing content' })
   }
   const person = new Person({
     name: body.name,
@@ -85,15 +85,15 @@ app.post('/api/persons', (request, response, next) => {
     .catch(error => next(error))
 })
 
-const errorHandler = (error, request, response, next) => { 
+const errorHandler = (error, request, response, next) => {
   console.log(error.message)
   if(error.name === 'CastError' && error.kind === 'ObjectId') {
-    return response.status(400).send({ error: 'malformed id'})
+    return response.status(400).send({ error: 'malformed id' })
   }
 
   if(error.name === 'ValidationError') {
     console.log(error)
-    return response.status(400).send({ 'error': error.message})
+    return response.status(400).send({ 'error': error.message })
   }
 
   next(error)
